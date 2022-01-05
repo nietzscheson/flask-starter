@@ -4,10 +4,10 @@ services:
   core:
     container_name: core
     build:
-      context: ./flask
+      context: ./core
       target: development
       dockerfile: ./Dockerfile
       args:
         - NAME=${NAME}
     volumes:
-      - ./flask:/core
+      - ./core:/core
