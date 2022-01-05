@@ -1,5 +1,5 @@
-.PHONY: 
-init: down volume up
+.PHONY:
+init: down volume upgrade up
 down:
 	docker-compose down
 volume:
@@ -21,3 +21,5 @@ prune:
 	make down
 	docker volume prune -f
 	docker system prune -f
+upgrade:
+	docker-compose run --rm core flask db upgrade
