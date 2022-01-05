@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  starter:
+    build:
+      context: .
+      # target: development
+      dockerfile: ./Dockerfile
+    volumes:
+        - ./:/app

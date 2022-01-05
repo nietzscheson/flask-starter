@@ -1,0 +1,10 @@
+{
+	"full_name": "Cristian Angulo",
+	"email": "cristianangulonova@gmail.com",
+	"project_name": "Flask Starter Template",
+	"project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+	"project_short_description": "Flask Cookiecutter Starter Template.",
+	"release_date": "2022-01-05",
+	"year": "2022",
+	"version": "0.1.0"
+}
