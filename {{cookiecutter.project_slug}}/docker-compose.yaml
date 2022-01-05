@@ -3,13 +3,11 @@ version: "3.9"
 services:
   core:
     container_name: core
-    build: 
+    build:
       context: ./flask
       target: development
       dockerfile: ./Dockerfile
       args:
         - NAME=${NAME}
-    ports:
-      - 5000:5000
     volumes:
       - ./flask:/core
