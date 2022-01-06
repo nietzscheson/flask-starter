@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 import unittest
 from app import app
@@ -10,7 +11,7 @@ class TestApi(unittest.TestCase):
         client = app.test_client(self)
         response = client.get('/', content_type='html/text')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, b'Hello, Flask!')
+        self.assertEqual(response.data, bytes(f"Hello, {os.environ['NAME']}!", 'utf-8'))
 
 class TestDatabase(unittest.TestCase):
 
