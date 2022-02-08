@@ -12,12 +12,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
 WORKDIR /core
 
-COPY Pipfile* .
+COPY Pipfile* ./
 
 RUN pipenv lock
 RUN pipenv install --system --deploy
 
-COPY . .
+COPY . ./
 
 FROM base as development
 
