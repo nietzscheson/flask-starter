@@ -5,26 +5,35 @@ ENV NAME=$NAME
 ENV FLASK_APP=/core/app.py
 ENV FLASK_ENV=development
 
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONFAULTHANDLER 1
 
-RUN pip3 install --upgrade pip pipenv
 
+FROM base AS python-deps
+
+RUN pip install pipenv
 RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
-WORKDIR /core
-
+# Install python dependencies in /.venv
 COPY Pipfile* ./
-
 RUN pipenv lock
-RUN pipenv install --system --deploy
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 
+
+FROM base AS development
+
+# Copy virtual env from python-deps stage
+COPY --from=python-deps /.venv /.venv
+ENV PATH="/.venv/bin:$PATH"
+
+# Create and switch to a new user
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+USER appuser
+
+# Install application into container
 COPY . ./
 
-FROM base as development
-
-CMD flask run --host 0.0.0.0
-
-FROM base as debug
-
-RUN pip3 install debugpy
-
-ENTRYPOINT ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", "-m", "unittest", "discover"]
+ENTRYPOINT ["sh","./entrypoint.sh" ]

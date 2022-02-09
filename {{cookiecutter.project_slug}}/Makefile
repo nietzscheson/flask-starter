@@ -1,5 +1,5 @@
 .PHONY:
-init: down volume upgrade up
+init: down volume up
 down:
 	docker-compose down
 volume:
