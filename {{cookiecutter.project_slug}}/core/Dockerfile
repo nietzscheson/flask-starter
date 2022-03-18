@@ -37,3 +37,5 @@ USER appuser
 COPY . ./
 
 ENTRYPOINT ["sh","./entrypoint.sh" ]
+
+CMD [ "flask run --host 0.0.0.0" ]
