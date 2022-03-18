@@ -30,10 +30,12 @@ ENV PATH="/.venv/bin:$PATH"
 
 # Create and switch to a new user
 RUN useradd --create-home appuser
-WORKDIR /home/appuser
+WORKDIR /core
 USER appuser
 
 # Install application into container
 COPY . ./
 
 ENTRYPOINT ["sh","./entrypoint.sh" ]
+
+CMD [ "flask run --host 0.0.0.0" ]
