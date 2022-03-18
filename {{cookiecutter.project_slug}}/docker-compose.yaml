@@ -9,5 +9,3 @@ services:
       dockerfile: ./Dockerfile
       args:
         - NAME=${NAME}
-    volumes:
-      - ./core:/core
