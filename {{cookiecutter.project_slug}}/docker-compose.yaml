@@ -5,7 +5,7 @@ services:
     container_name: core
     build:
       context: ./core
-      target: development
       dockerfile: ./Dockerfile
+      # target: development
       args:
         - NAME=${NAME}

@@ -1,44 +1,65 @@
-FROM python:3.9 as base
+FROM python:3.9.2 as base
 
 ARG NAME
-ENV NAME=$NAME
-ENV FLASK_APP=/core/app.py
+
+ENV PYTHONUNBUFFERED=1 \
+    NAME=$NAME \
+    FLASK_APP=/home/core/app.py \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.1.13 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv"
+
+
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
+
+FROM base as builder-base
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        curl \
+        build-essential
+
+RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+
+WORKDIR $PYSETUP_PATH
+COPY poetry.lock pyproject.toml ./
+
+RUN poetry lock && poetry install --no-dev
+
+FROM base as development
+
 ENV FLASK_ENV=development
+WORKDIR $PYSETUP_PATH
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONFAULTHANDLER 1
+COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 
-FROM base AS python-deps
+RUN poetry install
 
-RUN pip install pipenv==2022.3.28
-RUN apt-get update && apt-get install -y --no-install-recommends gcc
+RUN useradd --create-home core
+WORKDIR /home/core
+USER core
 
-# Install python dependencies in /.venv
-COPY Pipfile* ./
-RUN pipenv lock
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
-
-FROM base AS development
-
-# Copy virtual env from python-deps stage
-COPY --from=python-deps /usr/local /usr/local
-COPY --from=python-deps /Pipfile* /
-COPY --from=python-deps /.venv /.venv
-
-ENV PATH="/.venv/bin:$PATH"
-
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --dev
-
-# Create and switch to a new user
-RUN useradd --create-home appuser
-WORKDIR /core
-USER appuser
-
-# Install application into container
 COPY . ./
 
 ENTRYPOINT ["sh","./entrypoint.sh" ]
 
 CMD [ "flask run --host 0.0.0.0" ]
+
+# FROM base as production
+
+# ENV FLASK_ENV=production
+# COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+# RUN useradd --create-home core
+# WORKDIR /home/core
+# USER core
+# COPY . ./
+# CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
