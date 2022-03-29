@@ -9,7 +9,6 @@ def test_user_create(app):
         db.session.add(user)
         db.session.commit()
 
-    # print(db.session.query(User).filter_by(name="Isabella").first())
-    # assert User.name == "Isabella"
+    assert db.session.query(User).filter_by(name="Isabella").first().name == "Isabella"
 
 
