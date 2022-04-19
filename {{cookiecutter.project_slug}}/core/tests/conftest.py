@@ -10,8 +10,7 @@ def app():
 
     return _app
 
-
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def db(app):
     """
     Returns session-wide initialised database.
@@ -48,9 +47,9 @@ def session(app, db):
         yield _db
 
         # Cleanup
-    _db.session.remove()
+        _db.session.remove()
         # This instruction rolls back any commit that were executed in the tests.
-    _db.session.rollback()
+        _db.session.rollback()
 
 
 @pytest.fixture()
