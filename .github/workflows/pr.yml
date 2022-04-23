@@ -5,6 +5,10 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+        ### AWS
+        NAME: "flask"
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
