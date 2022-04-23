@@ -8,7 +8,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: "postgresql:///postgres@postgres:postgres:5432/postgres"
+      DATABASE_URL: $DATABASE_URL
     volumes:
       - ./core:/core
   postgres:

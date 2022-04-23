@@ -23,3 +23,5 @@ prune:
 	docker system prune -f
 upgrade:
 	docker-compose run --rm core flask db upgrade
+shell:
+	docker-compose exec core flask shell
