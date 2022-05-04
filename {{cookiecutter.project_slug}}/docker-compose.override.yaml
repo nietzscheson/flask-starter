@@ -10,7 +10,7 @@ services:
     environment:
       DATABASE_URL: $DATABASE_URL
     volumes:
-      - ./core:/core
+      - ./core:/home/core
   postgres:
     image: postgres:13.2-alpine
     container_name: postgres
