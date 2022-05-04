@@ -1,42 +1,50 @@
-FROM python:3.9 as base
+FROM python:3.9.2 as python-base
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        curl \
+        build-essential
 
 ARG NAME
-ENV NAME=$NAME
-ENV FLASK_APP=/core/app.py
-ENV FLASK_ENV=development
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONFAULTHANDLER 1
+ENV NAME=$NAME \
+    FLASK_APP=/home/core/app.py\
+    FLASK_ENV=development \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.1.13 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    WORKDIR="/home/core" \
+    VENV_PATH="/home/core/.venv"
 
-FROM base AS python-deps
+WORKDIR $WORKDIR
 
-RUN pip install pipenv==2022.3.28
-RUN apt-get update && apt-get install -y --no-install-recommends gcc
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
-# Install python dependencies in /.venv
-COPY Pipfile* ./
-RUN pipenv lock
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
+FROM python-base as builder-base
 
-FROM base AS development
+RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
-# Copy virtual env from python-deps stage
-COPY --from=python-deps /usr/local /usr/local
-COPY --from=python-deps /Pipfile* /
-COPY --from=python-deps /.venv /.venv
+COPY poetry.lock pyproject.toml ./
 
-ENV PATH="/.venv/bin:$PATH"
+# RUN poetry install --no-dev --no-root
 
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --dev
+FROM python-base as development
 
-# Create and switch to a new user
-RUN useradd --create-home appuser
-WORKDIR /core
-USER appuser
+COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+COPY --from=builder-base $WORKDIR $WORKDIR
 
-# Install application into container
+RUN poetry install --remove-untracked
+#
+# RUN useradd --create-home core
+# WORKDIR /home/core
+# USER core
+
 COPY . ./
 
 ENTRYPOINT ["sh","./entrypoint.sh" ]
