@@ -25,3 +25,5 @@ upgrade:
 	docker-compose run --rm core flask db upgrade
 shell:
 	docker-compose exec core flask shell
+up.prod:
+	docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up --build -d

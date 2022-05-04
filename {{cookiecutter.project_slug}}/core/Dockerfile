@@ -50,3 +50,14 @@ COPY . ./
 ENTRYPOINT ["sh","./entrypoint.sh" ]
 
 CMD [ "flask run --host 0.0.0.0" ]
+
+FROM python-base as production
+
+COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+COPY --from=builder-base $WORKDIR $WORKDIR
+
+COPY . ./
+
+ENTRYPOINT ["sh","./entrypoint.sh" ]
+
+CMD [ "gunicorn --bind 0.0.0.0:5000 app:app" ]
