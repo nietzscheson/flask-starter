@@ -25,3 +25,5 @@ upgrade:
 	docker-compose run --rm core flask db upgrade
 shell:
 	docker-compose exec core flask shell
+lint:
+	docker-compose run --rm core poetry run pre-commit run --all-files

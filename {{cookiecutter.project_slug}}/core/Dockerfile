@@ -25,6 +25,8 @@ FROM python-base as development
 
 ENV FLASK_ENV=development
 
+RUN pip install pre-commit
+
 RUN poetry install
 
 COPY . ./

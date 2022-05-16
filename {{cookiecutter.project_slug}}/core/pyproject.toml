@@ -10,10 +10,16 @@ Flask = "==2.0.3"
 psycopg2 = "2.9.3"
 Flask-SQLAlchemy= "==2.5.1"
 Flask-Migrate= "==3.1.0"
-factory-boy= "==3.2.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "22.3.0"
+flake8 = "4.0.1"
+isort = "5.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.1.1"
+factory-boy= "==3.2.1"
+# black = "22.3.0"
 
 [build-system]
 requires = ["poetry-core"]
